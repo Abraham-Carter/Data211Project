@@ -1,0 +1,81 @@
+---
+title: "FinalProject"
+author: "Abraham Carter"
+date: "2025-11-28"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Libraries
+
+```{r}
+library(readxl)
+library(tidyverse)
+```
+
+# Read the data set
+
+```{r}
+projectData <- read_excel("ProjectData.xlsx")
+```
+
+```{r}
+View(projectData)
+```
+
+
+# Create the true and false graphs per hour
+
+```{r}
+trueData <- projectData %>%
+  filter(AtWork == "TRUE") %>%
+  group_by(Hour) %>%
+  summarise(mean_drank = mean(Drank))
+
+trueData
+
+falseData <- projectData %>%
+  filter(AtWork == "FALSE") %>%
+  group_by(Hour) %>%
+  summarise(mean_drank = mean(Drank))
+
+falseData
+```
+
+```{r}
+ggplot(data = trueData, aes(x = Hour, y = mean_drank))+
+  geom_col(fill = "blue")+
+  labs(title = "Water Drunk at Work", x = "Hour", y = "Milliliters of Water")
+```
+
+```{r}
+ggplot(data = falseData, aes(x = Hour, y = mean_drank))+
+  geom_col(fill = "red") +
+  labs(title = "Water Drunk Away from Work", x = "Hour", y = "Milliliters of Water")
+```
+
+
+
+# Run the t-test
+
+```{r}
+t.test(Drank~AtWork, data = projectData, alternative = "less")
+```
+
+
+# Creating the direct comparison graph
+
+```{r}
+finalData <- data.frame(xaxis = c("At Work", "Away From Work"),
+           yaxis = c(161.6429, 130.9881))
+```
+
+```{r}
+ggplot(data = finalData, aes(x = xaxis, y = yaxis))+
+  geom_col(fill = "brown") +
+  labs(title = "Mean water drunk at and away from work", x="Where Water was Drunk", y = "Milliliters per Hour")
+```
+
